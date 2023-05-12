@@ -102,8 +102,8 @@ L_c = 2.                                  # coherence length of the cluster fiel
 delta_diff = 0.5
 Z = 1                                     # atomic number, Z=1 for protons
 p_max_cluster = 800.e3                    # 800 TeV, corresponding to a maximum 100 TeV photons, in [GeV]
-t_physical_yr = 10.e+6                     # age of the system, in [yr]
-t_run_yr = 10.e+6                           # run time, in [yr]
+t_physical_yr = 3.e+6                     # age of the system, in [yr]
+t_run_yr = 3.e+6                           # run time, in [yr]
 
 t_physical_Myr = t_physical_yr / 1.e6    # age of the system, in [Myr]
 t_run_Myr = t_run_yr / 1.e6               # run time, in [Myr]
@@ -187,7 +187,7 @@ n_op = 2                 # number of variables in the PDE
 L = 1.
 
 # momentum grid
-Np = 1096
+Np = 512
 p_grid = np.logspace(start=2., stop=6., num=Np+1)       # in [GeV]
 '''
 Np = 4096
