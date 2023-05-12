@@ -8,42 +8,57 @@ from scipy import linalg
 from scipy.integrate import solve_ivp
 import time
 from time import perf_counter
+from scipy.sparse import dia_array
 
+
+dirName = '/Users/ottaviofornieri/PHYSICS_projects/GitProjects/StellarClusters/NumericalTests/'
 
 
 def time_integration(Num):
 
     t_grid = np.linspace(start=0., stop=1., num=Num)
+    data = [np.ones( Num, dtype=np.float64 )]
+    jac_sparsity = dia_array( (data, [0]), shape=(Num, Num), dtype=np.float64 )
 
     def fun_rhs(t, y):
         dfdt = np.ones( len(t_grid) )
         return dfdt
 
     start_time = perf_counter()
-    output = scipy.integrate.solve_ivp(fun_rhs, [ min(t_grid), max(t_grid) ], np.zeros( len(t_grid) ), method='BDF', t_eval=None, jac_sparsity=None, dense_output=False, events=None, vectorized=False, args=None, atol=1.e-2, rtol=1.e-2)
+    output = scipy.integrate.solve_ivp( fun_rhs, [ min(t_grid), max(t_grid) ], np.zeros( len(t_grid) ), 
+                                       method='BDF', 
+                                       t_eval=None, 
+                                       jac_sparsity=jac_sparsity, 
+                                       dense_output=False, 
+                                       events=None,
+                                       vectorized=False,
+                                       args=None, atol=1.e-2, rtol=1.e-2 )
     stop_time = perf_counter()
 
     return stop_time - start_time
 
 
+
+
 start_log = 1.
-stop_log = 3.
-timeSteps_array = np.logspace(start=start_log, stop=stop_log, num=int( stop_log-start_log ) + 1)
+stop_log = 7.2
+timeSteps_array = np.logspace(start=start_log, stop=stop_log, num=int( stop_log-start_log ) + 1, dtype=int)
+print(f'array of time steps (len = {len(timeSteps_array)}): {timeSteps_array}')
+print('')
 
-print(timeSteps_array)
-print(int( stop_log-start_log ) + 1)
-
-
-#timeSteps_array = np.logspace(start=1., stop=2., num=2)
 
 start_time_script = perf_counter()
 runtime_array = np.zeros( len(timeSteps_array) )
-runtime_array = [time_integration( int(it) ) for it in timeSteps_array]
+runtime_array = [time_integration( it ) for it in timeSteps_array]
 stop_time_script = perf_counter()
 
 
-plt.plot(timeSteps_array, runtime_array)
-plt.show()
-
+print(f'runtime for each Nt = {runtime_array} sec')
 print(f'the script took {stop_time_script - start_time_script} seconds to run.')
-print(f'runtime = {runtime_array} sec')
+plt.loglog(timeSteps_array, runtime_array, lw=2., color='blue', label='num test')
+plt.loglog(timeSteps_array, time_integration( timeSteps_array[1] ) * timeSteps_array/timeSteps_array[1], lw=1.5, ls='--', color='red', label='linear')
+plt.xlabel('Total number of points', fontsize=13)
+plt.ylabel('Time [sec]', fontsize=13)
+plt.legend(frameon=False, fontsize=12)
+plt.savefig(dirName + 'TimeScaling.pdf',format='pdf',bbox_inches='tight', dpi=200)
+plt.show()
