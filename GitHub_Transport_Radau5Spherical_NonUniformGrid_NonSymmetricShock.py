@@ -1427,7 +1427,6 @@ indx_pFit_medium = round( (indx_pFit_in + indx_pFit_fin) / 2 )
 p_array_integral_tot = np.concatenate( (p_lowE, p_grid[indx_pFit_fin:]) )
 
 
-
 # Fit the propagated function #
 def fit_locations(p_fit, a, b):
     return a * (p_fit / p_grid[0])**(-b)
@@ -1456,7 +1455,7 @@ for ix in range(len(x_grid)-1):
 
 
 loc_spectrum_upstream = np.linspace(start=start_x_grid, stop=shock_location, num=5, endpoint=False)
-loc_spectrum_downstream = np.linspace(start=x_grid[shock_index], stop=x_grid[-1], num=6, endpoint=True)
+loc_spectrum_downstream = np.linspace(start=x_grid[shock_index], stop=x_grid[-2], num=6, endpoint=True)
 loc_spectrum = np.concatenate( (loc_spectrum_upstream, loc_spectrum_downstream) )
 indx_spectrum = [np.argmin( abs(loc_spectrum[ix] - x_grid) ) for ix in range(len(loc_spectrum))]
 
@@ -1484,7 +1483,7 @@ plot_cosmetics_multi()
 plt.title('$T_{\mathrm{run}} = \,$' + str("{:.3f}".format(t_run_Myr)) + '$\; \mathrm{Myr}, \;\; r = \;$' + str("{:.2f}".format(shock_location*L_ref)) + '$\, \mathrm{pc}$', fontsize=15, pad=8)
 plt.loglog(p_array_integral_tot, CR_norm*CR_spectrum_shock, lw=2., color='blue', label='low-E extension')
 plt.loglog(p_grid, CR_norm*sol[-1, indx_x_inj, :], ls='--', lw=2., color='red', label='num sol, $s=-$' + str("{:.2f}".format( slope_loc[indx_x_inj] )))
-plt.axvline(x=p_grid[indx_p_inj], ls=':', color='cyan', label='$p_{\mathrm{inj}} \simeq $' + str(round(p_grid[indx_p_inj])) + '$\, \mathrm{GeV}$')
+plt.axvline(x=p_grid[indx_p_inj], ls=':', color='cyan', label='$p_{\mathrm{inj}} \simeq \,$' + str(round(p_grid[indx_p_inj])) + '$\, \mathrm{GeV}$')
 plt.axvline(x=p_grid[indx_pFit_medium], ls='--', color='orange', label='$p_{\mathrm{extrapol}} \simeq \,$' + str(round(p_grid[indx_pFit_medium])) + '$\, \mathrm{GeV}$')
 plt.axvline(x=p_grid[indx_pFit_fin], ls='--', color='magenta')
 plt.axvline(x=p_grid[indx_pFit_in], ls='--', color='green')
@@ -1513,7 +1512,6 @@ print(f'ram pressure of the wind: {ram_pressure_TS_GeV} [GeV cm^(-3)]')
 print(f'minimum momentum considered in the run: {p_grid[0]} [GeV]')
 print(f'dimensionless integral of the CR pressure = {integral_CR_pressure}')
 print(f'normalization of the CR distribution = {CR_norm} [GeV^(-3) cm^(-3)]')
-print('')
 
 
 
