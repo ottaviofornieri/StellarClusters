@@ -102,10 +102,10 @@ L_c = 2.                                  # coherence length of the cluster fiel
 delta_diff = 0.5
 Z = 1                                     # atomic number, Z=1 for protons
 p_max_cluster = 800.e3                    # 800 TeV, corresponding to a maximum 100 TeV photons, in [GeV]
-t_physical_yr = 3.e+6                     # age of the system, in [yr]
-t_run_yr = 3.e+6                           # run time, in [yr]
+t_physical_yr = 3.e6                      # age of the system, in [yr]
+t_run_yr = 3.e6                           # run time, in [yr]
 
-t_physical_Myr = t_physical_yr / 1.e6    # age of the system, in [Myr]
+t_physical_Myr = t_physical_yr / 1.e6     # age of the system, in [Myr]
 t_run_Myr = t_run_yr / 1.e6               # run time, in [Myr]
 
 
@@ -187,12 +187,8 @@ n_op = 2                 # number of variables in the PDE
 L = 1.
 
 # momentum grid
-Np = 512
+Np = 1024
 p_grid = np.logspace(start=2., stop=6., num=Np+1)       # in [GeV]
-'''
-Np = 4096
-p_grid = np.logspace(start=2., stop=6., num=Np+1)       # in [GeV]
-'''
 deltap_over_p = [ (p_grid[ip+1] - p_grid[ip]) / p_grid[ip] for ip in range(len(p_grid)-1) ]
 p_lower1 = p_grid[0] / ( 1 + deltap_over_p[0] )           # ghost momentum, lower
 p_higher1 = p_grid[-1] * ( 1 + deltap_over_p[0] )         # ghost momentum, upper
@@ -248,9 +244,9 @@ DeltaL_v_dless = DeltaL_v / L_ref
 DeltaX_acc_up = D_coeff_func(p_grid) / v_0_cm * conv_cm_pc                      # acceleration length upstream
 DeltaX_acc_down = D_coeff_func(p_grid) / (v_0_cm/compr_factor) * conv_cm_pc     # acceleration length downstream
 factor_below_DeltaXAcc_maxDx = 1.
-factor_below_DeltaXAcc_minDx = 1. #10.
+factor_below_DeltaXAcc_minDx = 10. #10.
 DeltaX_acc_min = min( min(DeltaX_acc_up), min(DeltaX_acc_down) )
-DeltaX_acc_max = max(D_coeff_func(p_grid)) / v_0_cm * conv_cm_pc
+DeltaX_acc_max = max( D_coeff_func(p_grid) ) / v_0_cm * conv_cm_pc
 DeltaX_acc_min_dless = DeltaX_acc_min / L_ref
 DeltaX_acc_max_dless = DeltaX_acc_max / L_ref
 necessary_dx = DeltaX_acc_min_dless / factor_below_DeltaXAcc_minDx
@@ -258,7 +254,7 @@ necessary_Nx = int( L/necessary_dx )
 width_at_shock = 2         # region with the finest coarse, around the shock, width_at_shock/2 + width_at_shock/2, in dimensionless units D/u
 dx_min = necessary_dx
 dx_max = DeltaX_acc_min_dless / factor_below_DeltaXAcc_maxDx
-dx_max_down = (min(DeltaX_acc_down) / L_ref) / factor_below_DeltaXAcc_maxDx
+dx_max_down = ( min(DeltaX_acc_down) / L_ref ) / factor_below_DeltaXAcc_maxDx
 dx_physical_min = dx_min * L_ref                          # minimum spatial step, in [pc]
 dx_physical_max = dx_max * L_ref                          # maximum spatial step, in [pc]
 dx_physical_max_down = dx_max_down * L_ref                # maximum spatial step downstream, in [pc]
@@ -268,21 +264,21 @@ num_sections = L_ref / R_TS                               # number of sections t
 start_x_grid_slices = 0.                                  # starting point of the space grid
 shock_location = start_x_grid_slices + L/num_sections     # location of the shock, in terms of slices of the grid
 left_space = shock_location - DeltaX_acc_max_dless * (width_at_shock/2)
-right_space = L - (shock_location + DeltaX_acc_max_dless * (width_at_shock/2))
+right_space = L - ( shock_location + DeltaX_acc_max_dless * (width_at_shock/2) )
 
 
 
 if left_space >= 0.:
-    Nx_around_shock_left = round(DeltaX_acc_max_dless * (width_at_shock/2) / dx_min)
+    Nx_around_shock_left = round( DeltaX_acc_max_dless * (width_at_shock/2) / dx_min )
     Nx_around_shock_right = Nx_around_shock_left
-    Nx_away_from_shock_left = round(left_space / dx_max)
+    Nx_away_from_shock_left = round( left_space / dx_max )
 else:
-    Nx_around_shock_left = round((shock_location - start_x_grid_slices) / dx_min)
-    Nx_around_shock_right = round(DeltaX_acc_max_dless * (width_at_shock/2) / dx_min)
+    Nx_around_shock_left = round( (shock_location - start_x_grid_slices) / dx_min )
+    Nx_around_shock_right = round( DeltaX_acc_max_dless * (width_at_shock/2) / dx_min )
     Nx_away_from_shock_left = 0
     
 if Nx_away_from_shock_left == 0: Nx_away_from_shock_left = 2
-Nx_away_from_shock_right = round(right_space / dx_max_down)
+Nx_away_from_shock_right = round( right_space / dx_max_down )
 if Nx_away_from_shock_right < 5: Nx_away_from_shock_right = 5
 
 
@@ -568,9 +564,9 @@ for ix in range(len(x_grid)):
         wind_density_array[ix] = wind_density(x_grid[ np.argmin( abs(x_grid - L_c/L_ref) ) ])
     else:
         wind_density_array[ix] = wind_density(x_grid[ix])
+
         
-        
-# density of the ISM
+# density within the bubble, in the region [TS, FS]
 n_bubble_array = np.zeros( len(x_grid), dtype=np.float64 )
 for ix in range(len(x_grid)):
     if ix < shock_index:
@@ -585,7 +581,6 @@ for ix in range(len(x_grid)):
 ### Block to define the rate of momentum loss, computed in CGS base units ###
 #############################################################################
 # Klein-Nishina factor from Evoli et al. arXiv:2007.01302 (2020) #
-
 
 ISRF_components = ['CMB', 'IR', 'OPT', 'UV_1', 'UV_2', 'UV_3']
 T_ISRF = [2.725, 33.07, 313.32, 3249.3, 6150.4, 23209.0]            # in [K]
@@ -651,7 +646,6 @@ loss_rate_pp_collision_matrix = np.zeros( (len(x_grid), len(p_grid)), dtype=np.f
 for ix in range(len(x_grid)):
     loss_rate_pp_collision_matrix[ix, :] = [loss_rate_pp_collisions(ix, p_grid[ip]) for ip in range(len(p_grid))]
 
-
     
 
 plt.figure(figsize=(13, 4.5))
@@ -696,7 +690,6 @@ def tau_func_Th(p_, B_):
 # hadrons
 def tau_pp_coll(indx_r_, momentum_):
     return - 1. / abs( loss_rate_pp_collisions(indx_r_, momentum_) )
-
 
 
 
