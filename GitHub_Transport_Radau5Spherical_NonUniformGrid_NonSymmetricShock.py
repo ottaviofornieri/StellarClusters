@@ -187,7 +187,7 @@ n_op = 2                 # number of variables in the PDE
 L = 1.
 
 # momentum grid
-Np = 1024
+Np = 128
 p_grid = np.logspace(start=2., stop=6., num=Np+1)       # in [GeV]
 deltap_over_p = [ (p_grid[ip+1] - p_grid[ip]) / p_grid[ip] for ip in range(len(p_grid)-1) ]
 p_lower1 = p_grid[0] / ( 1 + deltap_over_p[0] )           # ghost momentum, lower

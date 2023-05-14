@@ -41,7 +41,7 @@ def time_integration(Num):
 
 
 start_log = 1.
-stop_log = 7.2
+stop_log = 7.
 timeSteps_array = np.logspace(start=start_log, stop=stop_log, num=int( stop_log-start_log ) + 1, dtype=int)
 print(f'array of time steps (len = {len(timeSteps_array)}): {timeSteps_array}')
 print('')
