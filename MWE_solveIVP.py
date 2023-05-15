@@ -2,9 +2,7 @@ import os
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib import rc, rcParams
 import scipy
-from scipy import linalg
 from scipy.integrate import solve_ivp
 import time
 from time import perf_counter
@@ -34,9 +32,7 @@ def time_integration(Num):
                                        vectorized=False,
                                        args=None, atol=1.e-2, rtol=1.e-2 )
     stop_time = perf_counter()
-
-    return stop_time - start_time
-
+    return stop_time - start_time, len(output.y)
 
 
 
@@ -49,14 +45,15 @@ print('')
 
 start_time_script = perf_counter()
 runtime_array = np.zeros( len(timeSteps_array) )
-runtime_array = [time_integration( it ) for it in timeSteps_array]
+runtime_array = [time_integration( it )[0] for it in timeSteps_array]
 stop_time_script = perf_counter()
 
 
 print(f'runtime for each Nt = {runtime_array} sec')
+print(f'length of the output = {[time_integration( it )[1] for it in timeSteps_array]}')
 print(f'the script took {stop_time_script - start_time_script} seconds to run.')
 plt.loglog(timeSteps_array, runtime_array, lw=2., color='blue', label='num test')
-plt.loglog(timeSteps_array, time_integration( timeSteps_array[1] ) * timeSteps_array/timeSteps_array[1], lw=1.5, ls='--', color='red', label='linear')
+plt.loglog(timeSteps_array, time_integration( timeSteps_array[1] )[0] * timeSteps_array/timeSteps_array[1], lw=1.5, ls='--', color='red', label='linear')
 plt.xlabel('Total number of points', fontsize=13)
 plt.ylabel('Time [sec]', fontsize=13)
 plt.legend(frameon=False, fontsize=12)
