@@ -15,7 +15,7 @@ dirName = '/Users/ottaviofornieri/PHYSICS_projects/GitProjects/StellarClusters/N
 def time_integration(Num):
 
     t_grid = np.linspace(start=0., stop=1., num=Num)
-    data = [np.ones( Num, dtype=np.float64 )]
+    data = [np.zeros( Num, dtype=np.float64 )]
     jac_sparsity = dia_array( (data, [0]), shape=(Num, Num), dtype=np.float64 )
 
     def fun_rhs(t, y):
